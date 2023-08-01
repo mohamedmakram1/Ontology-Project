@@ -1,0 +1,85 @@
+String prefixes = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+                       "PREFIX sou: <http://www.semanticweb.org/kayeg/ontologies/2023/4/UniversityOntologyV1#>\n";
+Query 1
+SELECT DISTINCT?StaffName
+WHERE {?ASU sou:hasStaff?StaffName}
+
+Description: This query selects the names of all staff members at ASU.
+
+Query 2
+SELECT ?AllInstances
+WHERE { ?AllInstances rdf:type sou:University}
+
+Description: This query selects all instances of the class University.
+
+Query 3
+SELECT ?ASU_Departments (COUNT(?student) as?studentCount)
+WHERE {
+?ASU sou:hasDepartment?ASU_Departments.
+?student rdf:type sou:UndergraduateStudent.
+?ASU_Departments sou:hasStudents?student.
+}
+GROUP BY?ASU_Departments
+
+Description: This query selects the ASU departments and the number of undergraduate students in each department.
+
+Query 4
+SELECT ?studentName ?BirthDate ?gpa
+WHERE {
+?student rdf:type sou:undergraduateStudent.
+?student sou:name ?studentName.
+
+OPTIONAL {
+?student sou:takes sou:Course_A1.
+?student sou:dob ?BirthDate.
+}
+
+OPTIONAL {
+?student sou:student_gpa ?gpa.
+FILTER(?gpa > 2)
+}
+}
+
+Description: This query selects the names of undergraduate students, their birth dates, and their GPAs, if their GPA is greater than 2.
+
+Query 5
+ASK
+WHERE {
+?person rdf:type sou:Manager.
+}
+
+Description: This query asks whether the ontology contains the class Manager.
+
+Query 6
+DESCRIBE sou:ElectiveCourse
+
+Description: This query describes the class ElectiveCourse.
+
+Query 7
+CONSTRUCT { ?subject sou:name ?object }
+WHERE { ?subject sou:name ?object }
+
+Description: This query constructs a new RDF graph that links any subject and object that have the predicate sou:name.
+
+Query 8
+SELECT DISTINCT ?InstructorName ?StudentName
+WHERE {
+{
+?instructor rdf:type sou:Instructor.
+?instructor sou:isTeaching sou:Course_A1.
+?instructor sou:name ?InstructorName.
+?student rdf:type sou:UndergraduateStudent.
+?student sou:name ?StudentName.
+FILTER EXISTS {
+?student sou:address ?Tanta.
+?student sou:takes sou:Course_A1.
+}
+}
+UNION {
+?instructor sou:isTeaching sou:Course_B1.
+?instructor sou:name ?InstructorName
+}
+}
+
+Description: This query selects the names of instructors who teach either Course A1 or Course B1, and the names of undergraduate students who live in Tanta and take Course A1.
+
